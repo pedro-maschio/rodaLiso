@@ -29,9 +29,9 @@ class R2ARodaLiso(IR2A):
         self.rPrev = 0
         self.tCurrent = 0
         self.bufferMin = 10
-        self.bufferLow = 0
+        self.bufferLow = 20
         self.bufferDelay = 0
-        self.bufferHigh = 0
+        self.bufferHigh = 50
         self.alpha = (0.75, 0.33, 0.5, 0.75, 0.9)
 
 
