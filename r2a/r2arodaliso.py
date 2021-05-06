@@ -24,13 +24,11 @@ class R2ARodaLiso(IR2A):
         self.t = 0 #contador
         self.runningFastStart = True 
         self.bufferIncreasing = True 
-        self.bDelay = 0
         self.rNow = -1
         self.rPrev = 0
         self.tCurrent = 0
         self.bufferMin = 10
         self.bufferLow = 20
-        self.bufferDelay = 0
         self.bufferHigh = 50
         self.alpha = (0.75, 0.33, 0.5, 0.75, 0.9)
 
@@ -78,17 +76,15 @@ class R2ARodaLiso(IR2A):
             i += 1
         
         if self.runningFastStart and self.rNow != len(self.qi)-1 and self.qi[self.rNow+1] <= self.alpha[0]*self.movingAverage(deltaT) and self.bufferIncreasing == True:
-            if(bufferSize > 1 and bufferSize < self.bufferMin):
+            if bufferSize < self.bufferMin:
                 if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.alpha[1]*self.movingAverage(deltaT): # a primeira condicao é pra verificar se existe próxima qualidade
                     self.rNow = self.rNow + 1
                 elif bufferSize < self.bufferLow:
-                    if self.rNow < len(self.qi) - 1 and self.qi[self.rNow + 1] <= alpha[2]*self.movingAverage(deltaT):
+                    if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <= self.alpha[2]*self.movingAverage(deltaT):
                         self.rNow = self.rNow + 1
             else:
                 if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.alpha[3]*self.movingAverage(deltaT):       
                     self.rNow = self.rNow + 1
-                if bufferSize > self.bufferHigh:
-                    self.bufferDelay = self.bufferHigh - 1 # 1 = tamanho segmento
         else:
             self.runningFastStart = False 
             
@@ -97,13 +93,8 @@ class R2ARodaLiso(IR2A):
             elif bufferSize < self.bufferLow:
                 if self.rNow != 0 and self.qi[self.rNow] >= self.movingAverage(0):
                     self.rNow = self.rNow - 1
-            elif bufferSize < self.bufferHigh:
-                if self.rNow == 19 or self.qi[self.rNow + 1] >= self.alpha[4]*self.movingAverage(deltaT):
-                    self.bDelay = max(bufferSize - 1, (self.bufferHigh + self.bufferLow)*0.5)
             else:
-                if self.rNow == 19 or self.qi[self.rNow + 1] >= self.alpha[4]*self.movingAverage(deltaT):
-                    self.bDelay = max(bufferSize - 1, (self.bufferHigh + self.bufferLow)*0.5)
-                else:
+                if self.rNow != 19 and self.qi[self.rNow + 1] < self.alpha[4]*self.movingAverage(deltaT):
                     self.rNow = self.rNow + 1
 
 
