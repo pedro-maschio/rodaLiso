@@ -10,7 +10,7 @@ from base.whiteboard import *
 from statistics import mean
 from player import *
 
-class R2ARodaLiso(IR2A):
+class R2AAdaptation(IR2A):
 
     def __init__(self, id):
         IR2A.__init__(self, id)
@@ -21,16 +21,15 @@ class R2ARodaLiso(IR2A):
         self.requestTime = 0
         self.throughputs = []
 
-        self.t = 0 #contador
-        self.runningFastStart = True 
-        self.bufferIncreasing = True 
+        self.t = 0 
+        self.fast = True 
+        self.bufferInc
         self.rNow = -1
-        self.rPrev = 0
         self.tCurrent = 0
         self.bufferMin = 10
         self.bufferLow = 20
         self.bufferHigh = 50
-        self.alpha = (0.75, 0.33, 0.5, 0.75, 0.9)
+        self.a = (0.75, 0.33, 0.5, 0.75, 0.9)
 
 
     def handle_xml_request(self, msg):
@@ -70,33 +69,32 @@ class R2ARodaLiso(IR2A):
         
         i = 0
 
-        while self.runningFastStart and i < len(self.whiteboard.get_playback_buffer_size()) - 1:
+        while self.fast and i < len(self.whiteboard.get_playback_buffer_size()) - 1:
             if self.whiteboard.get_playback_buffer_size()[i][1] > self.whiteboard.get_playback_buffer_size()[i+1][1]:
-                self.bufferIncreasing = False 
+                self.bufferInc 
             i += 1
         
-        if self.runningFastStart and self.rNow != len(self.qi)-1 and self.qi[self.rNow+1] <= self.alpha[0]*self.movingAverage(deltaT) and self.bufferIncreasing == True:
+        if self.fast and self.rNow != len(self.qi)-1 and self.qi[self.rNow+1] <= self.a[0]*self.movingAverage(deltaT) and self.bufferInc:       
             if bufferSize < self.bufferMin:
-                if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.alpha[1]*self.movingAverage(deltaT): # a primeira condicao é pra verificar se existe próxima qualidade
+                if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.a[1]*self.movingAverage(deltaT):
                     self.rNow = self.rNow + 1
                 elif bufferSize < self.bufferLow:
-                    if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <= self.alpha[2]*self.movingAverage(deltaT):
+                    if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <= self.a[2]*self.movingAverage(deltaT):
                         self.rNow = self.rNow + 1
             else:
-                if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.alpha[3]*self.movingAverage(deltaT):       
+                if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.a[3]*self.movingAverage(deltaT):       
                     self.rNow = self.rNow + 1
         else:
-            self.runningFastStart = False 
+            self.fast = False 
             
             if bufferSize < self.bufferMin:
-                self.rNow = 0 # minimum quality
+                self.rNow = 0 
             elif bufferSize < self.bufferLow:
                 if self.rNow != 0 and self.qi[self.rNow] >= self.movingAverage(0):
                     self.rNow = self.rNow - 1
             else:
-                if self.rNow != 19 and self.qi[self.rNow + 1] < self.alpha[4]*self.movingAverage(deltaT):
+                if self.rNow != 19 and self.qi[self.rNow + 1] < self.a[4]*self.movingAverage(deltaT):
                     self.rNow = self.rNow + 1
-
 
         msg.add_quality_id(self.qi[self.rNow])
         self.t += 1
