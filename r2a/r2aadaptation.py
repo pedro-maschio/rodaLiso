@@ -23,12 +23,11 @@ class R2AAdaptation(IR2A):
 
         self.t = 0 
         self.fast = True 
-        self.bufferInc
+        self.bufferInc = True
         self.rNow = -1
         self.tCurrent = 0
-        self.bufferMin = 10
-        self.bufferLow = 20
-        self.bufferHigh = 50
+        self.bMin = 10
+        self.bLow = 20
         self.a = (0.75, 0.33, 0.5, 0.75, 0.9)
 
 
@@ -68,17 +67,16 @@ class R2AAdaptation(IR2A):
             bufferSize = 0
         
         i = 0
-
         while self.fast and i < len(self.whiteboard.get_playback_buffer_size()) - 1:
             if self.whiteboard.get_playback_buffer_size()[i][1] > self.whiteboard.get_playback_buffer_size()[i+1][1]:
-                self.bufferInc 
+                self.bufferInc = False
             i += 1
         
         if self.fast and self.rNow != len(self.qi)-1 and self.qi[self.rNow+1] <= self.a[0]*self.movingAverage(deltaT) and self.bufferInc:
-            if bufferSize < self.bufferMin:
+            if bufferSize < self.bMin:
                 if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.a[1]*self.movingAverage(deltaT):
                     self.rNow = self.rNow + 1
-                elif bufferSize < self.bufferLow:
+                elif bufferSize < self.bLow:
                     if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <= self.a[2]*self.movingAverage(deltaT):
                         self.rNow = self.rNow + 1
             else:
@@ -87,9 +85,9 @@ class R2AAdaptation(IR2A):
         else:
             self.fast = False 
             
-            if bufferSize < self.bufferMin:
+            if bufferSize < self.bMin:
                 self.rNow = 0 
-            elif bufferSize < self.bufferLow:
+            elif bufferSize < self.bLow:
                 if self.rNow != 0 and self.qi[self.rNow] >= self.movingAverage(0):
                     self.rNow = self.rNow - 1
             else:

@@ -23,7 +23,6 @@ class R2ABola(IR2A):
         self.gamma = 5
         self.QDMax = 0
         self.rNow = 0
-        self.INFINITO = 100000
 
     def handle_xml_request(self, msg):
         self.requestTime = perf_counter()
@@ -55,7 +54,7 @@ class R2ABola(IR2A):
         else:
             bufferSize = 0
 
-        prev, mLinha, idx = -self.INFINITO, 0, 0
+        prev, mLinha, idx = -math.inf, 0, 0
         for i in range(len(self.qi)):
             if (self.V*log(self.qi[i]/self.qi[0])  + self.V*self.gamma - bufferSize) / self.qi[i] >= prev:
                 prev = (self.V*log(self.qi[i]/self.qi[0])  + self.V*self.gamma - bufferSize) / self.qi[i]
@@ -63,7 +62,7 @@ class R2ABola(IR2A):
             if self.qi[i] <= max(self.throughputs[-1], self.qi[0]):
                 mLinha = i
         
-        if idx >= self.rNow: # self.rnow é a qualidade anterior
+        if idx >= self.rNow: 
             if mLinha >= idx:
                 mLinha = idx
             elif mLinha < self.rNow:
