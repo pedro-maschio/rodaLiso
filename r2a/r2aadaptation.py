@@ -74,7 +74,7 @@ class R2AAdaptation(IR2A):
                 self.bufferInc 
             i += 1
         
-        if self.fast and self.rNow != len(self.qi)-1 and self.qi[self.rNow+1] <= self.a[0]*self.movingAverage(deltaT) and self.bufferInc:       
+        if self.fast and self.rNow != len(self.qi)-1 and self.qi[self.rNow+1] <= self.a[0]*self.movingAverage(deltaT) and self.bufferInc:
             if bufferSize < self.bufferMin:
                 if self.rNow < len(self.qi) - 1 and self.qi[self.rNow+1] <=  self.a[1]*self.movingAverage(deltaT):
                     self.rNow = self.rNow + 1
@@ -95,6 +95,7 @@ class R2AAdaptation(IR2A):
             else:
                 if self.rNow != 19 and self.qi[self.rNow + 1] < self.a[4]*self.movingAverage(deltaT):
                     self.rNow = self.rNow + 1
+
 
         msg.add_quality_id(self.qi[self.rNow])
         self.t += 1
